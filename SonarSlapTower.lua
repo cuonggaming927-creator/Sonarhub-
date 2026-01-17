@@ -18,6 +18,26 @@ local MinSpeed = 8
 local MaxSpeed = 100
 local InfinityJump = false
 local NoClip = false
+-- NOCLIP
+local PhysicsService = game:GetService("PhysicsService")
+
+pcall(function()
+    PhysicsService:CreateCollisionGroup("NoClip")
+end)
+PhysicsService:CollisionGroupSetCollidable("NoClip", "Default", false)
+
+local function SetNoclip(state)
+    if not Character then return end
+
+    for _, v in ipairs(Character:GetDescendants()) do
+        if v:IsA("BasePart") then
+            PhysicsService:SetPartCollisionGroup(
+                v,
+                state and "NoClip" or "Default"
+            )
+        end
+    end
+end
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -28,11 +48,13 @@ end
 
 ApplySpeed()
 
+
 Player.CharacterAdded:Connect(function(char)
     Character = char
-    Humanoid = char:WaitForChild("Humanoid")
+    Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
     task.wait(0.1)
     ApplySpeed()
+    SetNoclip(NoClip)
 end)
 
 -- REMOVE OLD GUI
@@ -196,6 +218,8 @@ PlusBtn.TextStrokeTransparency  = 0.4
 
 NoclipBtn.MouseButton1Click:Connect(function()
     NoClip = not NoClip
+    SetNoclip(NoClip)
+
     NoclipBtn.Text = "Noclip : " .. (NoClip and "ON" or "OFF")
     NoclipBtn.BackgroundColor3 = NoClip
         and Color3.fromRGB(90,50,160)
@@ -233,17 +257,6 @@ JumpBtn.MouseButton1Click:Connect(function()
     JumpBtn.BackgroundColor3 = InfinityJump and Color3.fromRGB(90,50,160) or Color3.fromRGB(30,30,36)
 end)
 
--- NOCLIP
-
-RunService.Stepped:Connect(function()
-    if Character then
-        for _, v in pairs(Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = not NoClip
-            end
-        end
-    end
-end)
 
 -- MINI BUTTON 🌙
 local Mini = Instance.new("TextButton", Gui)
