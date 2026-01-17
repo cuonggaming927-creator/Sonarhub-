@@ -10,10 +10,6 @@ local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 
-Player.CharacterAdded:Connect(function(char)
-    Character = char
-    Humanoid = char:WaitForChild("Humanoid")
-end)
 
 -- SETTINGS
 local Speed = 16
@@ -21,6 +17,7 @@ local SpeedStep = 4
 local MinSpeed = 8
 local MaxSpeed = 100
 local InfinityJump = false
+local NoClip = false
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -28,7 +25,15 @@ local function ApplySpeed()
         Humanoid.WalkSpeed = Speed
     end
 end
+
 ApplySpeed()
+
+Player.CharacterAdded:Connect(function(char)
+    Character = char
+    Humanoid = char:WaitForChild("Humanoid")
+    task.wait(0.1)
+    ApplySpeed()
+end)
 
 -- REMOVE OLD GUI
 pcall(function()
@@ -124,6 +129,16 @@ List.HorizontalAlignment = Enum.HorizontalAlignment.Center
 List.VerticalAlignment = Enum.VerticalAlignment.Center
 
 Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,10)
+-- NOCLIP BUTTON
+local NoclipBtn = Instance.new("TextButton", Content)
+NoclipBtn.Size = UDim2.fromScale(0.9, 0.18)
+NoclipBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
+NoclipBtn.Text = "Noclip : OFF"
+NoclipBtn.Font = Enum.Font.GothamBold
+NoclipBtn.TextSize = 14
+NoclipBtn.TextColor3 = Color3.new(1,1,1)
+NoclipBtn.BorderSizePixel = 0
+Instance.new("UICorner", NoclipBtn).CornerRadius = UDim.new(0,10)
 
 -- SPEED BAR (1 HÀNG)
 local SpeedBar = Instance.new("Frame", Content)
@@ -179,6 +194,13 @@ PlusBtn.BorderSizePixel = 0
 Instance.new("UICorner", PlusBtn).CornerRadius = UDim.new(0,10)
 PlusBtn.TextStrokeTransparency  = 0.4
 
+NoclipBtn.MouseButton1Click:Connect(function()
+    NoClip = not NoClip
+    NoclipBtn.Text = "Noclip : " .. (NoClip and "ON" or "OFF")
+    NoclipBtn.BackgroundColor3 = NoClip
+        and Color3.fromRGB(90,50,160)
+        or Color3.fromRGB(35,35,45)
+end)
 
 -- SPEED BUTTON LOGIC
 MinusBtn.MouseButton1Click:Connect(function()
@@ -209,6 +231,18 @@ JumpBtn.MouseButton1Click:Connect(function()
     InfinityJump = not InfinityJump
     JumpBtn.Text = "Infinity Jump: "..(InfinityJump and "ON" or "OFF")
     JumpBtn.BackgroundColor3 = InfinityJump and Color3.fromRGB(90,50,160) or Color3.fromRGB(30,30,36)
+end)
+
+-- NOCLIP
+
+RunService.Stepped:Connect(function()
+    if Character then
+        for _, v in pairs(Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = not NoClip
+            end
+        end
+    end
 end)
 
 -- MINI BUTTON 🌙
