@@ -1,6 +1,8 @@
 --// SONAR 🌙 HUB - SLAP TOWER UI
 --// Speed + Infinity Jump
 --// Made by bro 🤝
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -19,25 +21,28 @@ local MaxSpeed = 100
 local InfinityJump = false
 local NoClip = false
 -- NOCLIP
-local PhysicsService = game:GetService("PhysicsService")
 
-pcall(function()
-    PhysicsService:CreateCollisionGroup("NoClip")
-end)
-PhysicsService:CollisionGroupSetCollidable("NoClip", "Default", false)
+local NoclipConnection
 
 local function SetNoclip(state)
-    if not Character then return end
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+        NoclipConnection = nil
+    end
 
-    for _, v in ipairs(Character:GetDescendants()) do
-        if v:IsA("BasePart") then
-            PhysicsService:SetPartCollisionGroup(
-                v,
-                state and "NoClip" or "Default"
-            )
-        end
+    if state then
+        NoclipConnection = RunService.Stepped:Connect(function()
+            if Character then
+                for _, v in pairs(Character:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end
+        end)
     end
 end
+
 
 -- APPLY SPEED
 local function ApplySpeed()
