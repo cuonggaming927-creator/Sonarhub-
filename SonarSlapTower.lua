@@ -155,23 +155,21 @@ MinBtn.BorderSizePixel = 0
 Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0,12)
 
 -- CONTENT
-local Content = Instance.new("Frame", Inner)
+local Content = Instance.new("ScrollingFrame", Inner)
 Content.Position = UDim2.fromScale(0,0.03)
 Content.Size = UDim2.fromScale(1,0.94)
 Content.BackgroundTransparency = 1
 
 local List = Instance.new("UIListLayout", Content)
-List.Padding = UDim.new(0,10)
+List.Padding = UDim.new(0,12)
 List.HorizontalAlignment = Enum.HorizontalAlignment.Center
 List.VerticalAlignment = Enum.VerticalAlignment.Center
 
-Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,6)
-Contene.CanvasSize = UDim2.new(0, 0, 0, 0)
-Content.AutomaticSize = 
-Enum.AutomaticSize.Y
-Contetn.ScrollBarImageTransparency = 1
-Content.ScrollingDirection =
-Enum.ScrollingDirection.Y
+Content.CanvasSize = UDim2.new(0, 0, 0, 0)
+Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Content.ScrollBarImageTransparency = 1
+Content.ScrollingDirection = Enum.ScrollingDirection.Y
+
 -- NOCLIP BUTTON
 local NoclipBtn = Instance.new("TextButton", Content)
 NoclipBtn.Size = UDim2.fromScale(0.9, 0.18)
