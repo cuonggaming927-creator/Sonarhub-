@@ -492,9 +492,14 @@ end)
 UIS.JumpRequest:Connect(function()
     if not InfinityJump or not Humanoid or NoClip then return end
 
+    -- mở lại state bị game khóa
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-    Humanoid.Jump = true
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+
+    -- ÉP NHẢY BẰNG ENGINE GỐC
+    Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 end)
+
 
 
 
