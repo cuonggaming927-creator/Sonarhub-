@@ -70,6 +70,10 @@ Player.CharacterAdded:Connect(function(char)
     ApplySpeed()
     ApplyJump()
     SetNoclip(NoClip)
+    InfinityJump = false
+JumpBtn.Text = "Infinity Jump: OFF"
+JumpBtn.BackgroundColor3 = Color3.fromRGB(30,30,36)
+
 end)
 
 -- REMOVE OLD GUI
