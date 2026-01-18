@@ -14,18 +14,15 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local function ResetHumanoid()
     if not Humanoid then return end
 
-    -- reset vật lý
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+
     Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
     task.wait()
 
-    -- ép đứng
     Humanoid:ChangeState(Enum.HumanoidStateType.Running)
     task.wait()
 
-    -- bật leo
-    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
-
-    -- ⭐ KICK CLIMBING ENGINE
+    -- kick climbing engine
     Humanoid:ChangeState(Enum.HumanoidStateType.Climbing)
     task.wait()
     Humanoid:ChangeState(Enum.HumanoidStateType.Running)
@@ -68,27 +65,23 @@ ApplyJump()
 local NoclipConnection
 
 local function SetNoclip(state)
-    if not Character or not Humanoid then return end
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+        NoclipConnection = nil
+    end
+
+    if not Character then return end
 
     if state then
-        -- TẮT COLLIDE TOÀN THÂN
-        for _, v in pairs(Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
-            end
-        end
+        NoclipConnection = RunService.Stepped:Connect(function()
+            SetCharacterCollision(true)
+        end)
     else
-        -- BẬT LẠI COLLIDE
-        for _, v in pairs(Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = true
-            end
-        end
-
-        -- RESET HUMANOID (CỰC QUAN TRỌNG)
+        SetCharacterCollision(false)
         ResetHumanoid()
     end
 end
+
 
 -- ANTI FLING
 local AntiConnection
