@@ -58,14 +58,25 @@ local function SetNoclip(state)
         NoclipConnection = RunService.Stepped:Connect(function()
             if Character then
                 for _, v in pairs(Character:GetDescendants()) do
-                    if v:IsA("BasePart") then
+                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
                         v.CanCollide = false
                     end
                 end
             end
         end)
+    else
+        -- khi tắt noclip thì bật lại collide
+        if Character then
+            for _, v in pairs(Character:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
     end
 end
+
+
 -- ANTI FLING
 local AntiConnection
 
