@@ -55,26 +55,38 @@ local function SetNoclip(state)
     end
 
     if state then
+        if Humanoid then
+    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+end
+        
         NoclipConnection = RunService.Stepped:Connect(function()
             if Character then
                 for _, v in pairs(Character:GetDescendants()) do
-                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                        v.CanCollide = false
+                    if v:IsA("BasePart") then
+                        -- GIỮ COLLIDE CHO CHÂN + HRP
+                        if v.Name:lower():find("foot")
+                        or v.Name:lower():find("leg")
+                        or v.Name == "HumanoidRootPart" then
+                            v.CanCollide = true
+                        else
+                            v.CanCollide = false
+                        end
                     end
                 end
             end
         end)
     else
-        -- khi tắt noclip thì bật lại collide
+        -- Tắt noclip → bật lại collide
         if Character then
             for _, v in pairs(Character:GetDescendants()) do
-                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                if v:IsA("BasePart") then
                     v.CanCollide = true
                 end
             end
         end
     end
 end
+
 
 
 -- ANTI FLING
