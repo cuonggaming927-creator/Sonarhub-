@@ -64,6 +64,19 @@ ApplyJump()
 
 local NoclipConnection
 
+local function SetCharacterCollision(state)
+    if not Character then return end
+
+    for _, v in pairs(Character:GetChildren()) do
+        if v:IsA("BasePart") then
+            -- KHÔNG ĐƯỢC ĐỤNG HUMANOIDROOTPART
+            if v.Name ~= "HumanoidRootPart" then
+                v.CanCollide = not state
+            end
+        end
+    end
+end
+
 local function SetNoclip(state)
     if NoclipConnection then
         NoclipConnection:Disconnect()
