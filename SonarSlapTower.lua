@@ -19,6 +19,10 @@ local SpeedStep = 4
 local MinSpeed = 8
 local MaxSpeed = 100
 local InfinityJump = false
+local JumpPower = 50
+local JumpStep = 5
+local MinJump = 30
+local MaxJump = 150
 local NoClip = false
 -- NOCLIP
 
@@ -52,13 +56,20 @@ local function ApplySpeed()
 end
 
 ApplySpeed()
-
+-- APPLY JUMP
+local function ApplyJump()
+    if Humanoid then
+        Humanoid.JumpPower = JumpPower
+    end
+end
+ApplyJump()
 
 Player.CharacterAdded:Connect(function(char)
     Character = char
     Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
     task.wait(0.1)
     ApplySpeed()
+    ApplyJump()
     SetNoclip(NoClip)
 end)
 
@@ -230,6 +241,38 @@ NoclipBtn.MouseButton1Click:Connect(function()
         and Color3.fromRGB(90,50,160)
         or Color3.fromRGB(35,35,45)
 end)
+-- NUT CUA JUMPPOWER
+local JumpBar = Instance.new("Frame", Content)
+JumpBar.Size = UDim2.fromScale(0.9, 0.18)
+JumpBar.BackgroundColor3 = Color3.fromRGB(30,30,36)
+JumpBar.BorderSizePixel = 0
+Instance.new("UICorner", JumpBar).CornerRadius = UDim.new(0,12)
+
+-- LAYOUT NGANG
+local BarLayout = Instance.new("UIListLayout", JumpBar)
+BarLayout.FillDirection = Enum.FillDirection.Horizontal
+BarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+BarLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+BarLayout.Padding = UDim.new(0,10)
+
+Instance.new("UIPadding",JumpBar).PaddingLeft = UDim.new(0,12)
+Instance.new("UIPadding", JumpBar).PaddingRight = UDim.new(0,12)
+local JumpStroke = Instance.new("UIStroke", JumpBar)
+JumpStroke.Thickness = 1.5
+JumpStroke.Transparency = 0.6
+JumpStroke.Color = Color3.fromRGB(120,90,200)
+-- NÚT -
+local MinusBtn = Instance.new("TextButton", JumpBar)
+MinusJumpBtn.Size = UDim2.fromScale(0.22, 0.8)
+MinusJumpBtn.Text = "−"
+MinusJumpBtn.Font = Enum.Font.GothamBlack
+MinusJumpBtn.TextScaled = true
+MinusJumpBtn.BackgroundColor3 = Color3.fromRGB(40,40,50)
+MinusJumpBtn.TextColor3 = Color3.new(1,1,1)
+MinusJumpBtn.BorderSizePixel = 0
+Instance.new("UICorner", MinusBtn).CornerRadius = UDim.new(0,10)
+MinusBtn.TextStrokeTransparency = 0.4
+
 
 -- SPEED BUTTON LOGIC
 MinusBtn.MouseButton1Click:Connect(function()
