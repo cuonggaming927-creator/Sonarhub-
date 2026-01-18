@@ -490,9 +490,11 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 UIS.JumpRequest:Connect(function()
-    if InfinityJump and Humanoid and not NoClip then
-        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
+    if not InfinityJump or not Humanoid or NoClip then return end
+
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+    Humanoid.Jump = true
 end)
+
 
 
