@@ -66,19 +66,6 @@ local function SetNoclip(state)
         end)
     end
 end
-Player.CharacterAdded:Connect(function(char)
-    Character = char
-    Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
-    task.wait(0.1)
-    
-    ApplySpeed()
-    ApplyJump()
-    SetNoclip(NoClip)
-    
-    InfinityJump = false
-    SetAntiFling(AntiFling)
-
-end)
 -- ANTI FLING
 local AntiConnection
 
@@ -102,6 +89,19 @@ local function SetAntiFling(state)
         end)
     end
 end
+Player.CharacterAdded:Connect(function(char)
+    Character = char
+    Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
+    task.wait(0.1)
+    
+    ApplySpeed()
+    ApplyJump()
+    SetNoclip(NoClip)
+    
+    InfinityJump = false
+    SetAntiFling(AntiFling)
+
+end)
 
 -- REMOVE OLD GUI
 pcall(function()
