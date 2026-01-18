@@ -48,26 +48,33 @@ ApplyJump()
 
 local NoclipConnection
 
+local PhysicsHold
+
 local function SetNoclip(state)
-    if NoclipConnection then
-        NoclipConnection:Disconnect()
-        NoclipConnection = nil
+    -- Ngắt giữ physics cũ
+    if PhysicsHold then
+        PhysicsHold:Disconnect()
+        PhysicsHold = nil
     end
 
     if not Character or not Humanoid then return end
 
     if state then
-        -- ÉP HUMANOID VÀO PHYSICS → ROBLOX KHÔNG GIẬT
-        Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        -- GIỮ STATE PHYSICS MỖI FRAME (CHỐNG GIẬT)
+        PhysicsHold = RunService.Heartbeat:Connect(function()
+            if Humanoid:GetState() ~= Enum.HumanoidStateType.Physics then
+                Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+            end
+        end)
 
-        -- SET COLLIDE 1 LẦN
+        -- TẮT COLLIDE TOÀN THÂN
         for _, v in pairs(Character:GetDescendants()) do
             if v:IsA("BasePart") then
                 v.CanCollide = false
             end
         end
 
-        -- GIỮ HRP + CHÂN CÓ COLLIDE (LEO CẦU THANG)
+        -- GIỮ COLLIDE CHO CHÂN + ROOT (LEO CẦU THANG)
         for _, name in ipairs({
             "HumanoidRootPart",
             "LeftFoot","RightFoot",
@@ -80,7 +87,7 @@ local function SetNoclip(state)
         end
 
     else
-        -- THOÁT NOCLIP
+        -- TẮT NOCLIP
         Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 
         for _, v in pairs(Character:GetDescendants()) do
@@ -478,7 +485,7 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 UIS.JumpRequest:Connect(function()
-    if InfinityJump and Humanoid then
+    if InfinityJump and not NoClip and Humanoid then
         Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
