@@ -84,7 +84,7 @@ Gui.ResetOnSpawn = false
 
 -- MAIN FRAME
 local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.fromScale(0.35, 0.35)
+Main.Size = UDim2.fromScale(0.35, 0.4)
 Main.Position = UDim2.fromScale(0.5, 0.5)
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
 Main.BackgroundColor3 = Color3.fromRGB(20,20,25)
