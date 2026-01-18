@@ -68,7 +68,7 @@ local function SetNoclip(state)
         -- khi tắt noclip thì bật lại collide
         if Character then
             for _, v in pairs(Character:GetDescendants()) do
-                if v:IsA("BasePart") then
+                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
                     v.CanCollide = true
                 end
             end
@@ -92,9 +92,11 @@ local function SetAntiFling(state)
                 local hrp = Character.HumanoidRootPart
 
                 -- Giới hạn lực bay
-                if hrp.AssemblyLinearVelocity.Magnitude > MaxVelocity then
-                    hrp.AssemblyLinearVelocity =
-                        hrp.AssemblyLinearVelocity.Unit * MaxVelocity
+                if local vel = hrp.AssemblyLinearVelocity
+if vel.Magnitude > MaxVelocity then
+    hrp.AssemblyLinearVelocity = vel.Unit * MaxVelocity
+end
+
                 end
             end
         end)
