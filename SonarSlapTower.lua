@@ -48,48 +48,23 @@ ApplyJump()
 
 local NoclipConnection
 
-local PhysicsHold
-
 local function SetNoclip(state)
-    -- Ngắt giữ physics cũ
-    if PhysicsHold then
-        PhysicsHold:Disconnect()
-        PhysicsHold = nil
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+        NoclipConnection = nil
     end
 
-    if not Character or not Humanoid then return end
+    if not Character then return end
 
     if state then
-        -- GIỮ STATE PHYSICS MỖI FRAME (CHỐNG GIẬT)
-        PhysicsHold = RunService.Heartbeat:Connect(function()
-            if Humanoid:GetState() ~= Enum.HumanoidStateType.Physics then
-                Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        NoclipConnection = RunService.Stepped:Connect(function()
+            for _, v in pairs(Character:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
             end
         end)
-
-        -- TẮT COLLIDE TOÀN THÂN
-        for _, v in pairs(Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
-            end
-        end
-
-        -- GIỮ COLLIDE CHO CHÂN + ROOT (LEO CẦU THANG)
-        for _, name in ipairs({
-            "HumanoidRootPart",
-            "LeftFoot","RightFoot",
-            "LeftLowerLeg","RightLowerLeg"
-        }) do
-            local part = Character:FindFirstChild(name, true)
-            if part and part:IsA("BasePart") then
-                part.CanCollide = true
-            end
-        end
-
     else
-        -- TẮT NOCLIP
-        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-
         for _, v in pairs(Character:GetDescendants()) do
             if v:IsA("BasePart") then
                 v.CanCollide = true
@@ -97,6 +72,7 @@ local function SetNoclip(state)
         end
     end
 end
+
 
 -- ANTI FLING
 local AntiConnection
