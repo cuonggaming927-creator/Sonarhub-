@@ -84,7 +84,7 @@ Gui.ResetOnSpawn = false
 
 -- MAIN FRAME
 local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.fromScale(0.35, 0.35)
+Main.Size = UDim2.fromScale(0.35, 0.5)
 Main.Position = UDim2.fromScale(0.5, 0.5)
 Main.AnchorPoint = Vector2.new(0.5, 0.5)
 Main.BackgroundColor3 = Color3.fromRGB(20,20,25)
@@ -94,7 +94,7 @@ Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,18)
 -- INNER FRAME (BACKGROUND XỊN)
 local Inner = Instance.new("Frame", Main)
-Inner.Size = UDim2.fromScale(0.94, 0.9)
+Inner.Size = UDim2.fromScale(0.94, 0.85)
 Inner.Position = UDim2.fromScale(0.5, 0.6)
 Inner.AnchorPoint = Vector2.new(0.5, 0.5)
 Inner.BackgroundColor3 = Color3.fromRGB(24,24,30)
@@ -156,8 +156,8 @@ Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0,12)
 
 -- CONTENT
 local Content = Instance.new("Frame", Inner)
-Content.Position = UDim2.fromScale(0,0.02)
-Content.Size = UDim2.fromScale(1,0.96)
+Content.Position = UDim2.fromScale(0,0.03)
+Content.Size = UDim2.fromScale(1,0.94)
 Content.BackgroundTransparency = 1
 
 local List = Instance.new("UIListLayout", Content)
