@@ -34,11 +34,13 @@ end
 ApplySpeed()
 -- APPLY JUMP
 local function ApplyJump()
-    if Humanoid then
+    if Humanoid then 
+        Humanoid.UseJumpPower = true
         Humanoid.JumpPower = JumpPower
     end
 end
 ApplyJump()
+
 -- NOCLIP
 
 local NoclipConnection
