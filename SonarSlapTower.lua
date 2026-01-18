@@ -23,6 +23,9 @@ local JumpStep = 5
 local MinJump = 30
 local MaxJump = 150
 local NoClip = false
+local AntiFling = false
+local MaxVelocity = 40 -- càng thấp càng chống mạnh
+
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -73,7 +76,32 @@ Player.CharacterAdded:Connect(function(char)
     SetNoclip(NoClip)
     
     InfinityJump = false
+    SetAntiFling(AntiFling)
+
 end)
+-- ANTI FLING
+local AntiConnection
+
+local function SetAntiFling(state)
+    if AntiConnection then
+        AntiConnection:Disconnect()
+        AntiConnection = nil
+    end
+
+    if state then
+        AntiConnection = RunService.Heartbeat:Connect(function()
+            if Character and Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = Character.HumanoidRootPart
+
+                -- Giới hạn lực bay
+                if hrp.AssemblyLinearVelocity.Magnitude > MaxVelocity then
+                    hrp.AssemblyLinearVelocity =
+                        hrp.AssemblyLinearVelocity.Unit * MaxVelocity
+                end
+            end
+        end)
+    end
+end
 
 -- REMOVE OLD GUI
 pcall(function()
@@ -344,6 +372,26 @@ JumpBtn.MouseButton1Click:Connect(function()
     InfinityJump = not InfinityJump
     JumpBtn.Text = "Infinity Jump: "..(InfinityJump and "ON" or "OFF")
     JumpBtn.BackgroundColor3 = InfinityJump and Color3.fromRGB(90,50,160) or Color3.fromRGB(30,30,36)
+end)
+-- ANTI FLING BUTTON
+local AntiBtn = Instance.new("TextButton", Content)
+AntiBtn.Size = UDim2.fromScale(0.9, 0.18)
+AntiBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
+AntiBtn.Text = "Anti Fling : OFF"
+AntiBtn.Font = Enum.Font.GothamBold
+AntiBtn.TextSize = 14
+AntiBtn.TextColor3 = Color3.new(1,1,1)
+AntiBtn.BorderSizePixel = 0
+Instance.new("UICorner", AntiBtn).CornerRadius = UDim.new(0,10)
+-- NUT
+AntiBtn.MouseButton1Click:Connect(function()
+    AntiFling = not AntiFling
+    SetAntiFling(AntiFling)
+
+    AntiBtn.Text = "Anti Fling : "..(AntiFling and "ON" or "OFF")
+    AntiBtn.BackgroundColor3 = AntiFling
+        and Color3.fromRGB(90,50,160)
+        or Color3.fromRGB(35,35,45)
 end)
 
 
