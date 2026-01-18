@@ -91,19 +91,6 @@ local function SetNoclip(state)
     end
 end
 
-        -- Tắt noclip → bật lại collide
-        if Character then
-            for _, v in pairs(Character:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = true
-                end
-            end
-        end
-    end
-end
-
-
-
 -- ANTI FLING
 local AntiConnection
 
