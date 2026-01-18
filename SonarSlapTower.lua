@@ -90,18 +90,16 @@ local function SetAntiFling(state)
         AntiConnection = RunService.Heartbeat:Connect(function()
             if Character and Character:FindFirstChild("HumanoidRootPart") then
                 local hrp = Character.HumanoidRootPart
+                local vel = hrp.AssemblyLinearVelocity
 
-                -- Giới hạn lực bay
-                if local vel = hrp.AssemblyLinearVelocity
-if vel.Magnitude > MaxVelocity then
-    hrp.AssemblyLinearVelocity = vel.Unit * MaxVelocity
-end
-
+                if vel.Magnitude > MaxVelocity then
+                    hrp.AssemblyLinearVelocity = vel.Unit * MaxVelocity
                 end
             end
         end)
     end
 end
+
 Player.CharacterAdded:Connect(function(char)
     Character = char
     Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
