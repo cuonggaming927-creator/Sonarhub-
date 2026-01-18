@@ -83,19 +83,26 @@ local function SetAntiFling(state)
         AntiConnection = nil
     end
 
+    if not Character then return end
+
     if state then
         AntiConnection = RunService.Heartbeat:Connect(function()
-            if Character and Character:FindFirstChild("HumanoidRootPart") then
-                local hrp = Character.HumanoidRootPart
-                local vel = hrp.AssemblyLinearVelocity
+            local hrp = Character:FindFirstChild("HumanoidRootPart")
+            local hum = Character:FindFirstChild("Humanoid")
+            if hrp and hum then
+                -- DẬP BAY
+                hrp.AssemblyLinearVelocity = Vector3.zero
+                hrp.AssemblyAngularVelocity = Vector3.zero
 
-                if vel.Magnitude > MaxVelocity then
-                    hrp.AssemblyLinearVelocity = vel.Unit * MaxVelocity
+                -- ÉP ĐỨNG
+                if hum:GetState() == Enum.HumanoidStateType.Freefall then
+                    hum:ChangeState(Enum.HumanoidStateType.Running)
                 end
             end
         end)
     end
 end
+
 
 Player.CharacterAdded:Connect(function(char)
     Character = char
@@ -461,7 +468,8 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 UIS.JumpRequest:Connect(function()
-    if InfinityJump and not NoClip and Humanoid then
+    if InfinityJump and Humanoid then
         Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
+
