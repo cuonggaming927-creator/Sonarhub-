@@ -12,7 +12,6 @@ local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 
-
 -- SETTINGS
 local Speed = 16
 local SpeedStep = 4
@@ -24,6 +23,22 @@ local JumpStep = 5
 local MinJump = 30
 local MaxJump = 150
 local NoClip = false
+
+-- APPLY SPEED
+local function ApplySpeed()
+    if Humanoid then
+        Humanoid.WalkSpeed = Speed
+    end
+end
+
+ApplySpeed()
+-- APPLY JUMP
+local function ApplyJump()
+    if Humanoid then
+        Humanoid.JumpPower = JumpPower
+    end
+end
+ApplyJump()
 -- NOCLIP
 
 local NoclipConnection
@@ -46,24 +61,6 @@ local function SetNoclip(state)
         end)
     end
 end
-
-
--- APPLY SPEED
-local function ApplySpeed()
-    if Humanoid then
-        Humanoid.WalkSpeed = Speed
-    end
-end
-
-ApplySpeed()
--- APPLY JUMP
-local function ApplyJump()
-    if Humanoid then
-        Humanoid.JumpPower = JumpPower
-    end
-end
-ApplyJump()
-
 Player.CharacterAdded:Connect(function(char)
     Character = char
     Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
@@ -241,28 +238,28 @@ NoclipBtn.MouseButton1Click:Connect(function()
         and Color3.fromRGB(90,50,160)
         or Color3.fromRGB(35,35,45)
 end)
--- NUT CUA JUMPPOWER
+-- JUMP BAR (1 HÀNG)
 local JumpBar = Instance.new("Frame", Content)
 JumpBar.Size = UDim2.fromScale(0.9, 0.18)
 JumpBar.BackgroundColor3 = Color3.fromRGB(30,30,36)
 JumpBar.BorderSizePixel = 0
-Instance.new("UICorner", JumpBar).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner",JumpBar).CornerRadius = UDim.new(0,12)
 
 -- LAYOUT NGANG
-local BarLayout = Instance.new("UIListLayout", JumpBar)
-BarLayout.FillDirection = Enum.FillDirection.Horizontal
-BarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-BarLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-BarLayout.Padding = UDim.new(0,10)
+local JumpLayout = Instance.new("UIListLayout", JumpBar)
+JumpLayout.FillDirection = Enum.FillDirection.Horizontal
+JumpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+JumpLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+JumpLayout.Padding = UDim.new(0,10)
 
-Instance.new("UIPadding",JumpBar).PaddingLeft = UDim.new(0,12)
+Instance.new("UIPadding", JumpBar).PaddingLeft = UDim.new(0,12)
 Instance.new("UIPadding", JumpBar).PaddingRight = UDim.new(0,12)
 local JumpStroke = Instance.new("UIStroke", JumpBar)
 JumpStroke.Thickness = 1.5
 JumpStroke.Transparency = 0.6
 JumpStroke.Color = Color3.fromRGB(120,90,200)
 -- NÚT -
-local MinusBtn = Instance.new("TextButton", JumpBar)
+local MinusJumpBtn = Instance.new("TextButton", JumpBar)
 MinusJumpBtn.Size = UDim2.fromScale(0.22, 0.8)
 MinusJumpBtn.Text = "−"
 MinusJumpBtn.Font = Enum.Font.GothamBlack
@@ -270,8 +267,30 @@ MinusJumpBtn.TextScaled = true
 MinusJumpBtn.BackgroundColor3 = Color3.fromRGB(40,40,50)
 MinusJumpBtn.TextColor3 = Color3.new(1,1,1)
 MinusJumpBtn.BorderSizePixel = 0
-Instance.new("UICorner", MinusBtn).CornerRadius = UDim.new(0,10)
-MinusBtn.TextStrokeTransparency = 0.4
+Instance.new("UICorner", MinusJumpBtn).CornerRadius = UDim.new(0,10)
+MinusJumpBtn.TextStrokeTransparency = 0.4
+
+-- TEXT JUMP
+local JumpLabel = Instance.new("TextLabel", JumpBar)
+JumpLabel.Size = UDim2.fromScale(0.44, 0.7)
+JumpLabel.BackgroundTransparency = 1
+JumpLabel.Text = "Jump: "..JumpPower
+JumpLabel.Font = Enum.Font.GothamBold
+JumpLabel.TextSize = 16
+JumpLabel.TextColor3 = Color3.fromRGB(230,230,230)
+JumpLabel.TextXAlignment = Enum.TextXAlignment.Center
+JumpLabel.TextYAlignment = Enum.TextYAlignment.Center
+-- NÚT +
+local PlusJumpBtn = Instance.new("TextButton", JumpBar)
+PlusJumpBtn.Size = UDim2.fromScale(0.22, 0.8)
+PlusJumpBtn.Text = "+"
+PlusJumpBtn.Font = Enum.Font.GothamBlack
+PlusJumpBtn.TextScaled = true
+PlusJumpBtn.BackgroundColor3 = Color3.fromRGB(90,50,160)
+PlusJumpBtn.TextColor3 = Color3.new(1,1,1)
+PlusJumpBtn.BorderSizePixel = 0
+Instance.new("UICorner", PlusJumpBtn).CornerRadius = UDim.new(0,10)
+PlusJumpBtn.TextStrokeTransparency  = 0.4
 
 
 -- SPEED BUTTON LOGIC
@@ -286,6 +305,19 @@ PlusBtn.MouseButton1Click:Connect(function()
     ApplySpeed()
     SpeedLabel.Text = "Speed: "..Speed
 end)
+-- JUMP LOGIC
+MinusJumpBtn.MouseButton1Click:Connect(function()
+    JumpPower = math.clamp(JumpPower - JumpStep, MinJump, MaxJump)
+    ApplyJump()
+    JumpLabel.Text = "Jump: "..JumpPower
+end)
+
+PlusJumpBtn.MouseButton1Click:Connect(function()
+    JumpPower = math.clamp(JumpPower + JumpStep, MinJump, MaxJump)
+    ApplyJump()
+    JumpLabel.Text = "Jump: "..JumpPower
+end)
+
 
 
 -- INFINITY JUMP BUTTON
