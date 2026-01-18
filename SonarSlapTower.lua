@@ -14,17 +14,23 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local function ResetHumanoid()
     if not Humanoid then return end
 
-    -- Ép humanoid thoát state lỗi
-    Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-    task.wait(0.05)
+    -- reset vật lý
+    Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    task.wait()
 
-    -- Ép về trạng thái chạy bình thường
+    -- ép đứng
     Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-    task.wait(0.05)
+    task.wait()
 
-    -- BẬT LẠI KHẢ NĂNG LEO
+    -- bật leo
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+
+    -- ⭐ KICK CLIMBING ENGINE
+    Humanoid:ChangeState(Enum.HumanoidStateType.Climbing)
+    task.wait()
+    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 end
+
 -- SETTING
 local Speed = 16
 local SpeedStep = 4
@@ -478,8 +484,9 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 UIS.JumpRequest:Connect(function()
-    if InfinityJump and Humanoid then
+    if InfinityJump and Humanoid and not NoClip then
         Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
+
 
