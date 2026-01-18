@@ -113,12 +113,18 @@ local function SetAntiFling(state)
         AntiConnection = RunService.Heartbeat:Connect(function()
             local hrp = Character:FindFirstChild("HumanoidRootPart")
             local hum = Character:FindFirstChild("Humanoid")
-            if hrp and hum then
-                -- DẬP BAY
-                hrp.AssemblyLinearVelocity = Vector3.zero
+            if not hrp or not hum then return end
+
+            local vel = hrp.AssemblyLinearVelocity
+            local speed = vel.Magnitude
+
+            -- CHỈ KHI BỊ TÁT MẠNH
+            if speed > 90 then
+                -- Giảm lực, không triệt tiêu
+                hrp.AssemblyLinearVelocity = vel.Unit * 35
                 hrp.AssemblyAngularVelocity = Vector3.zero
 
-                -- ÉP ĐỨNG
+                -- Ép đứng lại nếu bị bay
                 if hum:GetState() == Enum.HumanoidStateType.Freefall then
                     hum:ChangeState(Enum.HumanoidStateType.Running)
                 end
