@@ -156,8 +156,8 @@ Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0,12)
 
 -- CONTENT
 local Content = Instance.new("Frame", Inner)
-Content.Position = UDim2.fromScale(0,0.05)
-Content.Size = UDim2.fromScale(1,0.9)
+Content.Position = UDim2.fromScale(0,0.02)
+Content.Size = UDim2.fromScale(1,0.96)
 Content.BackgroundTransparency = 1
 
 local List = Instance.new("UIListLayout", Content)
@@ -165,7 +165,7 @@ List.Padding = UDim.new(0,10)
 List.HorizontalAlignment = Enum.HorizontalAlignment.Center
 List.VerticalAlignment = Enum.VerticalAlignment.Center
 
-Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,10)
+Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,6)
 -- NOCLIP BUTTON
 local NoclipBtn = Instance.new("TextButton", Content)
 NoclipBtn.Size = UDim2.fromScale(0.9, 0.18)
