@@ -94,8 +94,8 @@ Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,18)
 -- INNER FRAME (BACKGROUND XỊN)
 local Inner = Instance.new("Frame", Main)
-Inner.Size = UDim2.fromScale(0.94, 0.85)
-Inner.Position = UDim2.fromScale(0.5, 0.6)
+Inner.Size = UDim2.fromScale(0.94, 0.78)
+Inner.Position = UDim2.fromScale(0.5, 0.58)
 Inner.AnchorPoint = Vector2.new(0.5, 0.5)
 Inner.BackgroundColor3 = Color3.fromRGB(24,24,30)
 Inner.BorderSizePixel = 0
@@ -120,7 +120,7 @@ InnerGradient.Color = ColorSequence.new{
 InnerGradient.Rotation = 90
 -- TOP BAR
 local TopBar = Instance.new("Frame", Main)
-TopBar.Size = UDim2.fromScale(1,0.25)
+TopBar.Size = UDim2.fromScale(1,0.18)
 TopBar.BackgroundColor3 = Color3.fromRGB(140,80,255)
 TopBar.BorderSizePixel = 0
 Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0,18)
@@ -163,7 +163,7 @@ Content.BackgroundTransparency = 1
 local List = Instance.new("UIListLayout", Content)
 List.Padding = UDim.new(0,12)
 List.HorizontalAlignment = Enum.HorizontalAlignment.Center
-List.VerticalAlignment = Enum.VerticalAlignment.Center
+List.VerticalAlignment = Enum.VerticalAlignment.Top
 
 Content.CanvasSize = UDim2.new(0, 0, 0, 0)
 Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
