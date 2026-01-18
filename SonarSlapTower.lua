@@ -11,8 +11,21 @@ local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
+local function ResetHumanoid()
+    if not Humanoid then return end
 
--- SETTINGS
+    -- Ép humanoid thoát state lỗi
+    Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+    task.wait(0.05)
+
+    -- Ép về trạng thái chạy bình thường
+    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+    task.wait(0.05)
+
+    -- BẬT LẠI KHẢ NĂNG LEO
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+end
+-- SETTING
 local Speed = 16
 local SpeedStep = 4
 local MinSpeed = 8
@@ -64,14 +77,20 @@ local function SetNoclip(state)
                 end
             end
         end)
-    else
-        for _, v in pairs(Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = true
-            end
+   else
+    -- TẮT NOCLIP
+
+    -- bật lại collide toàn thân
+    for _, v in pairs(Character:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.CanCollide = true
         end
     end
+
+    -- ⭐ FIX QUAN TRỌNG NHẤT
+    ResetHumanoid()
 end
+
 
 
 -- ANTI FLING
