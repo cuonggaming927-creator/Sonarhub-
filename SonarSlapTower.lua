@@ -62,36 +62,27 @@ ApplyJump()
 local NoclipConnection
 
 local function SetNoclip(state)
-    if NoclipConnection then
-        NoclipConnection:Disconnect()
-        NoclipConnection = nil
-    end
-
-    if not Character then return end
+    if not Character or not Humanoid then return end
 
     if state then
-        NoclipConnection = RunService.Stepped:Connect(function()
-            for _, v in pairs(Character:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = false
-                end
+        -- TẮT COLLIDE TOÀN THÂN
+        for _, v in pairs(Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
             end
-        end)
-   else
-    -- TẮT NOCLIP
-
-    -- bật lại collide toàn thân
-    for _, v in pairs(Character:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.CanCollide = true
         end
+    else
+        -- BẬT LẠI COLLIDE
+        for _, v in pairs(Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = true
+            end
+        end
+
+        -- RESET HUMANOID (CỰC QUAN TRỌNG)
+        ResetHumanoid()
     end
-
-    -- ⭐ FIX QUAN TRỌNG NHẤT
-    ResetHumanoid()
 end
-
-
 
 -- ANTI FLING
 local AntiConnection
