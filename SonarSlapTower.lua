@@ -69,8 +69,10 @@ local function SetCharacterCollision(state)
 
     for _, v in pairs(Character:GetChildren()) do
         if v:IsA("BasePart") then
-            -- KHÔNG ĐƯỢC ĐỤNG HUMANOIDROOTPART
-            if v.Name ~= "HumanoidRootPart" then
+            -- GIỮ COLLISION CHO CHÂN ĐỂ ENGINE NHẬN ĐẤT
+            if v.Name ~= "HumanoidRootPart"
+            and not v.Name:lower():find("foot")
+            and not v.Name:lower():find("leg") then
                 v.CanCollide = not state
             end
         end
@@ -86,7 +88,7 @@ local function SetNoclip(state)
     if not Character then return end
 
     if state then
-        NoclipConnection = RunService.Stepped:Connect(function()
+        NoclipConnection = RunService.Heartbeat:Connect(function()
             SetCharacterCollision(true)
         end)
     else
@@ -490,13 +492,10 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 UIS.JumpRequest:Connect(function()
-    if not InfinityJump or not Humanoid or NoClip then return end
+    if not InfinityJump or not Humanoid then return end
 
-    -- mở lại state bị game khóa
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
-
-    -- ÉP NHẢY BẰNG ENGINE GỐC
     Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 end)
 
