@@ -39,9 +39,6 @@ local JumpStep = 5
 local MinJump = 30
 local MaxJump = 150
 local NoClip = false
-local AntiFling = false
-local MaxVelocity = 40 -- càng thấp càng chống mạnh
-
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -97,43 +94,6 @@ local function SetNoclip(state)
     end
 end
 
-
--- ANTI FLING
-local AntiConnection
-
-local function SetAntiFling(state)
-    if AntiConnection then
-        AntiConnection:Disconnect()
-        AntiConnection = nil
-    end
-
-    if not Character then return end
-
-    if state then
-        AntiConnection = RunService.Heartbeat:Connect(function()
-            local hrp = Character:FindFirstChild("HumanoidRootPart")
-            local hum = Character:FindFirstChild("Humanoid")
-            if not hrp or not hum then return end
-
-            local vel = hrp.AssemblyLinearVelocity
-            local speed = vel.Magnitude
-
-            -- CHỈ KHI BỊ TÁT MẠNH
-            if speed > 90 then
-                -- Giảm lực, không triệt tiêu
-                hrp.AssemblyLinearVelocity = vel.Unit * 35
-                hrp.AssemblyAngularVelocity = Vector3.zero
-
-                -- Ép đứng lại nếu bị bay
-                if hum:GetState() == Enum.HumanoidStateType.Freefall then
-                    hum:ChangeState(Enum.HumanoidStateType.Running)
-                end
-            end
-        end)
-    end
-end
-
-
 Player.CharacterAdded:Connect(function(char)
     Character = char
     Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
@@ -144,8 +104,7 @@ Player.CharacterAdded:Connect(function(char)
     SetNoclip(NoClip)
     
     InfinityJump = false
-    SetAntiFling(AntiFling)
-
+        
 end)
 
 -- REMOVE OLD GUI
@@ -418,27 +377,6 @@ JumpBtn.MouseButton1Click:Connect(function()
     JumpBtn.Text = "Infinity Jump: "..(InfinityJump and "ON" or "OFF")
     JumpBtn.BackgroundColor3 = InfinityJump and Color3.fromRGB(90,50,160) or Color3.fromRGB(30,30,36)
 end)
--- ANTI FLING BUTTON
-local AntiBtn = Instance.new("TextButton", Content)
-AntiBtn.Size = UDim2.fromScale(0.9, 0.18)
-AntiBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
-AntiBtn.Text = "Anti Fling : OFF"
-AntiBtn.Font = Enum.Font.GothamBold
-AntiBtn.TextSize = 14
-AntiBtn.TextColor3 = Color3.new(1,1,1)
-AntiBtn.BorderSizePixel = 0
-Instance.new("UICorner", AntiBtn).CornerRadius = UDim.new(0,10)
--- NUT
-AntiBtn.MouseButton1Click:Connect(function()
-    AntiFling = not AntiFling
-    SetAntiFling(AntiFling)
-
-    AntiBtn.Text = "Anti Fling : "..(AntiFling and "ON" or "OFF")
-    AntiBtn.BackgroundColor3 = AntiFling
-        and Color3.fromRGB(90,50,160)
-        or Color3.fromRGB(35,35,45)
-end)
-
 
 -- MINI BUTTON 🌙
 local Mini = Instance.new("TextButton", Gui)
