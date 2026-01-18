@@ -166,6 +166,12 @@ List.HorizontalAlignment = Enum.HorizontalAlignment.Center
 List.VerticalAlignment = Enum.VerticalAlignment.Center
 
 Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,6)
+Contene.CanvasSize = UDim2.new(0, 0, 0, 0)
+Content.AutomaticSize = 
+Enum.AutomaticSize.Y
+Contetn.ScrollBarImageTransparency = 1
+Content.ScrollingDirection =
+Enum.ScrollingDirection.Y
 -- NOCLIP BUTTON
 local NoclipBtn = Instance.new("TextButton", Content)
 NoclipBtn.Size = UDim2.fromScale(0.9, 0.18)
