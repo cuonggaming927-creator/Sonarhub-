@@ -94,7 +94,7 @@ Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,18)
 -- INNER FRAME (BACKGROUND XỊN)
 local Inner = Instance.new("Frame", Main)
-Inner.Size = UDim2.fromScale(0.94, 0.8)
+Inner.Size = UDim2.fromScale(0.94, 0.9)
 Inner.Position = UDim2.fromScale(0.5, 0.6)
 Inner.AnchorPoint = Vector2.new(0.5, 0.5)
 Inner.BackgroundColor3 = Color3.fromRGB(24,24,30)
