@@ -67,13 +67,12 @@ Player.CharacterAdded:Connect(function(char)
     Character = char
     Humanoid = char:WaitForChild("Humanoid") -- vẫn OK vì đã khai báo local phía trên
     task.wait(0.1)
+    
     ApplySpeed()
     ApplyJump()
     SetNoclip(NoClip)
+    
     InfinityJump = false
-JumpBtn.Text = "Infinity Jump: OFF"
-JumpBtn.BackgroundColor3 = Color3.fromRGB(30,30,36)
-
 end)
 
 -- REMOVE OLD GUI
