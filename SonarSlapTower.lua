@@ -97,126 +97,65 @@ local function SetNoclip(state)
     end
 end
 -- FLY
-local FlyBV, FlyBG
-local FlyMethod = nil -- "bv" or "cframe" or nil
-local fallbackTimer = 0
-
-local function cleanupFly()
-    if FlyConnection then
-        FlyConnection:Disconnect()
-        FlyConnection = nil
-    end
-    if FlyBV then
-        pcall(function() FlyBV:Destroy() end)
-        FlyBV = nil
-    end
-    if FlyBG then
-        pcall(function() FlyBG:Destroy() end)
-        FlyBG = nil
-    end
-    FlyMethod = nil
-    fallbackTimer = 0
-end
+local FlyConnection
+local LinearVel, AlignOri, Att
 
 local function SetFly(state)
-    cleanupFly()
-
     local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        warn("[Fly] Không tìm thấy HumanoidRootPart")
-        return
-    end
+    if not hrp or not Humanoid then return end
 
+    -- TẮT
     if not state then
-        warn("[Fly] Tắt fly")
+        if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
+        if LinearVel then LinearVel:Destroy() LinearVel = nil end
+        if AlignOri then AlignOri:Destroy() AlignOri = nil end
+        if Att then Att:Destroy() Att = nil end
+
+        Humanoid.PlatformStand = false
+        Humanoid.AutoRotate = true
+        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
         return
     end
 
-    -- 1) Thử BodyVelocity + BodyGyro
-    local successBV = pcall(function()
-        FlyBV = Instance.new("BodyVelocity")
-        FlyBV.Name = "SonarFlyBV"
-        FlyBV.MaxForce = Vector3.new(1e9,1e9,1e9)
-        FlyBV.Velocity = Vector3.zero
-        FlyBV.Parent = hrp
+    -- BẬT
+    Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    Humanoid.PlatformStand = true
+    Humanoid.AutoRotate = false
 
-        FlyBG = Instance.new("BodyGyro")
-        FlyBG.Name = "SonarFlyBG"
-        FlyBG.MaxTorque = Vector3.new(1e9,1e9,1e9)
-        FlyBG.CFrame = hrp.CFrame
-        FlyBG.Parent = hrp
-    end)
+    Att = Instance.new("Attachment", hrp)
 
-    if successBV and FlyBV and FlyBG then
-        FlyMethod = "bv"
-        warn("[Fly] Đang sử dụng BodyVelocity method")
-    else
-        warn("[Fly] Không thể tạo BodyVelocity/BodyGyro, sẽ dùng CFrame fallback")
-        FlyMethod = "cframe"
-    end
+    LinearVel = Instance.new("LinearVelocity")
+    LinearVel.Attachment0 = Att
+    LinearVel.MaxForce = math.huge
+    LinearVel.RelativeTo = Enum.ActuatorRelativeTo.World
+    LinearVel.VectorVelocity = Vector3.zero
+    LinearVel.Parent = hrp
 
-    -- Kết nối update (RenderStepped)
-    local cam = workspace.CurrentCamera
-    local lastTime = tick()
+    AlignOri = Instance.new("AlignOrientation")
+    AlignOri.Attachment0 = Att
+    AlignOri.Mode = Enum.OrientationAlignmentMode.OneAttachment
+    AlignOri.MaxTorque = math.huge
+    AlignOri.Responsiveness = 200
+    AlignOri.Parent = hrp
+
     FlyConnection = RunService.RenderStepped:Connect(function()
-        if not Character or not hrp or not Humanoid then
-            cleanupFly()
-            return
-        end
-
-        local now = tick()
-        local dt = math.clamp(now - lastTime, 0, 0.1)
-        lastTime = now
-
-        local camCFrame = workspace.CurrentCamera and workspace.CurrentCamera.CFrame or hrp.CFrame
+        local cam = workspace.CurrentCamera
         local dir = Vector3.zero
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += camCFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= camCFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= camCFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += camCFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += camCFrame.UpVector end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= camCFrame.UpVector end
 
-        if FlyMethod == "bv" and FlyBV and FlyBG then
-            -- scale lớn hơn 1 để có tốc độ thấy được; nhân với 50 để gần tương tự nhiều hub
-            if dir.Magnitude > 0 then
-                FlyBV.Velocity = dir.Unit * (FlySpeed * 50)
-            else
-                -- giữ 0 để dừng
-                FlyBV.Velocity = Vector3.zero
-            end
-            FlyBG.CFrame = camCFrame
+        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += cam.CFrame.UpVector end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= cam.CFrame.UpVector end
 
-            -- kiểm tra nếu server/anti dập liên tục (với fallback timer)
-            fallbackTimer = fallbackTimer + dt
-            if fallbackTimer > 0.35 and (not FlyBV.Parent or FlyBV.Velocity.Magnitude < 0.001) then
-                -- body bị dập/giết hoặc bị reset -> chuyển sang cframe fallback
-                warn("[Fly] BodyVelocity có vẻ bị dập, chuyển sang CFrame fallback")
-                FlyMethod = "cframe"
-                -- destroy BV/BG (tao sẽ tạo lại fallback not using BV)
-                if FlyBV then FlyBV:Destroy() FlyBV = nil end
-                if FlyBG then FlyBG:Destroy() FlyBG = nil end
-            end
-
-        elseif FlyMethod == "cframe" then
-            -- fallback: di chuyển bằng CFrame mỗi frame (không anchored)
-            if dir.Magnitude > 0 then
-                local move = dir.Unit * (FlySpeed * 10) * dt -- scale và nhân dt
-                -- dùng CFrame bằng cách lerp để giảm giật
-                local target = hrp.CFrame + move
-                hrp.CFrame = hrp.CFrame:Lerp(target, 0.9)
-            end
-            -- nếu trong fallback mà game vẫn giết hrp movement thì in ra
-            fallbackTimer = fallbackTimer + dt
-            if fallbackTimer > 3 then
-                -- sau 3s fallback vẫn chạy => báo cho user
-                warn("[Fly] Đang chạy CFrame fallback (nếu vẫn không di chuyển có thể do anti-cheat của server).")
-                fallbackTimer = 0
-            end
+        if dir.Magnitude > 0 then
+            LinearVel.VectorVelocity = dir.Unit * (FlySpeed * 50)
         else
-            -- không method -> thoát an toàn
-            cleanupFly()
+            LinearVel.VectorVelocity = Vector3.zero
         end
+
+        AlignOri.CFrame = cam.CFrame
     end)
 end
 
