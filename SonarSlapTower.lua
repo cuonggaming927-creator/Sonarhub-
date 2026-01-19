@@ -39,6 +39,9 @@ local JumpStep = 5
 local MinJump = 30
 local MaxJump = 150
 local NoClip = false
+local Fly = false
+local FlySpeed = 2
+local FlyConnection
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -91,6 +94,49 @@ local function SetNoclip(state)
     else
         SetCharacterCollision(false)
         ResetHumanoid()
+    end
+end
+local function SetFly(state)
+    if FlyConnection then
+        FlyConnection:Disconnect()
+        FlyConnection = nil
+    end
+
+    local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if state then
+        hrp.Anchored = true
+
+        FlyConnection = RunService.RenderStepped:Connect(function()
+            local cam = workspace.CurrentCamera
+            local moveDir = Vector3.zero
+
+            if UIS:IsKeyDown(Enum.KeyCode.W) then
+                moveDir += cam.CFrame.LookVector
+            end
+            if UIS:IsKeyDown(Enum.KeyCode.S) then
+                moveDir -= cam.CFrame.LookVector
+            end
+            if UIS:IsKeyDown(Enum.KeyCode.A) then
+                moveDir -= cam.CFrame.RightVector
+            end
+            if UIS:IsKeyDown(Enum.KeyCode.D) then
+                moveDir += cam.CFrame.RightVector
+            end
+            if UIS:IsKeyDown(Enum.KeyCode.Space) then
+                moveDir += cam.CFrame.UpVector
+            end
+            if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
+                moveDir -= cam.CFrame.UpVector
+            end
+
+            if moveDir.Magnitude > 0 then
+                hrp.CFrame += moveDir.Unit * FlySpeed
+            end
+        end)
+    else
+        hrp.Anchored = false
     end
 end
 
@@ -377,7 +423,26 @@ JumpBtn.MouseButton1Click:Connect(function()
     JumpBtn.Text = "Infinity Jump: "..(InfinityJump and "ON" or "OFF")
     JumpBtn.BackgroundColor3 = InfinityJump and Color3.fromRGB(90,50,160) or Color3.fromRGB(30,30,36)
 end)
+-- FLY BUTTON
+local FlyBtn = Instance.new("TextButton", Content)
+FlyBtn.Size = UDim2.fromScale(0.9, 0.18)
+FlyBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
+FlyBtn.Text = "Fly : OFF"
+FlyBtn.Font = Enum.Font.GothamBold
+FlyBtn.TextSize = 14
+FlyBtn.TextColor3 = Color3.new(1,1,1)
+FlyBtn.BorderSizePixel = 0
+Instance.new("UICorner", FlyBtn).CornerRadius = UDim.new(0,10)
 
+FlyBtn.MouseButton1Click:Connect(function()
+    Fly = not Fly
+    SetFly(Fly)
+
+    FlyBtn.Text = "Fly : "..(Fly and "ON" or "OFF")
+    FlyBtn.BackgroundColor3 = Fly
+        and Color3.fromRGB(90,50,160)
+        or Color3.fromRGB(35,35,45)
+end)
 -- MINI BUTTON 🌙
 local Mini = Instance.new("TextButton", Gui)
 Mini.Size = UDim2.fromScale(0.085,0.14)
