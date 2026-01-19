@@ -98,64 +98,112 @@ local function SetNoclip(state)
 end
 -- FLY
 local FlyConnection
-local LinearVel, AlignOri, Att
+local BV, BG, Attach -- BodyVelocity, BodyGyro, Attachment
+local usingMethod = nil -- "bv" or "cframe"
 
-local function SetFly(state)
-    local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
-    if not hrp or not Humanoid then return end
-
-    -- TẮT
-    if not state then
-        if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
-        if LinearVel then LinearVel:Destroy() LinearVel = nil end
-        if AlignOri then AlignOri:Destroy() AlignOri = nil end
-        if Att then Att:Destroy() Att = nil end
-
+local function cleanupFly()
+    if FlyConnection then
+        FlyConnection:Disconnect()
+        FlyConnection = nil
+    end
+    if BV then pcall(function() BV:Destroy() end) BV = nil end
+    if BG then pcall(function() BG:Destroy() end) BG = nil end
+    if Attach then pcall(function() Attach:Destroy() end) Attach = nil end
+    usingMethod = nil
+    -- restore humanoid if exists
+    if Humanoid then
         Humanoid.PlatformStand = false
         Humanoid.AutoRotate = true
-        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+        pcall(function() Humanoid:ChangeState(Enum.HumanoidStateType.Running) end)
+    end
+end
+
+local function SetFly(state)
+    cleanupFly()
+    local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
+    if not hrp or not Humanoid then
+        warn("[Fly] missing hrp/humanoid")
         return
     end
 
-    -- BẬT
-    Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    Humanoid.PlatformStand = true
-    Humanoid.AutoRotate = false
+    if not state then
+        -- turn off
+        return
+    end
 
-    Att = Instance.new("Attachment", hrp)
+    -- prepare
+    -- first try BodyVelocity + BodyGyro (most hubs use this)
+    local ok = pcall(function()
+        BV = Instance.new("BodyVelocity")
+        BV.Name = "SonarFlyBV"
+        BV.MaxForce = Vector3.new(9e5,9e5,9e5) -- vector for BodyVelocity
+        BV.Velocity = Vector3.zero
+        BV.P = 1250
+        BV.Parent = hrp
 
-    LinearVel = Instance.new("LinearVelocity")
-    LinearVel.Attachment0 = Att
-    LinearVel.MaxForce = math.huge
-    LinearVel.RelativeTo = Enum.ActuatorRelativeTo.World
-    LinearVel.VectorVelocity = Vector3.zero
-    LinearVel.Parent = hrp
+        BG = Instance.new("BodyGyro")
+        BG.Name = "SonarFlyBG"
+        BG.MaxTorque = Vector3.new(9e5,9e5,9e5)
+        BG.CFrame = hrp.CFrame
+        BG.Parent = hrp
+    end)
 
-    AlignOri = Instance.new("AlignOrientation")
-    AlignOri.Attachment0 = Att
-    AlignOri.Mode = Enum.OrientationAlignmentMode.OneAttachment
-    AlignOri.MaxTorque = math.huge
-    AlignOri.Responsiveness = 200
-    AlignOri.Parent = hrp
+    if ok and BV and BG and BV.Parent then
+        usingMethod = "bv"
+        -- put humanoid in platformstand to avoid conflicting animations/physics
+        pcall(function() Humanoid.PlatformStand = true end)
+    else
+        -- BV failed: fallback to CFrame movement (safer but may be server-overridden)
+        usingMethod = "cframe"
+        warn("[Fly] BodyVelocity failed, using CFrame fallback")
+    end
 
+    -- main update loop
+    local cam = workspace.CurrentCamera
+    local lastTick = tick()
     FlyConnection = RunService.RenderStepped:Connect(function()
-        local cam = workspace.CurrentCamera
-        local dir = Vector3.zero
-
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += cam.CFrame.UpVector end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= cam.CFrame.UpVector end
-
-        if dir.Magnitude > 0 then
-            LinearVel.VectorVelocity = dir.Unit * (FlySpeed * 50)
-        else
-            LinearVel.VectorVelocity = Vector3.zero
+        if not Character or not hrp or not Humanoid then
+            cleanupFly()
+            return
         end
 
-        AlignOri.CFrame = cam.CFrame
+        local now = tick()
+        local dt = math.clamp(now - lastTick, 0, 0.1)
+        lastTick = now
+
+        local camCF = workspace.CurrentCamera and workspace.CurrentCamera.CFrame or hrp.CFrame
+        local dir = Vector3.zero
+        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += camCF.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= camCF.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= camCF.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += camCF.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += camCF.UpVector end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= camCF.UpVector end
+
+        if usingMethod == "bv" and BV and BG then
+            if dir.Magnitude > 0 then
+                BV.Velocity = dir.Unit * (FlySpeed * 50) -- tăng scale để thấy rõ
+            else
+                BV.Velocity = Vector3.zero
+            end
+            BG.CFrame = camCF
+
+            -- quick self-check: if BV got destroyed by server, switch to cframe fallback
+            if (not BV.Parent) then
+                warn("[Fly] BV destroyed by server => switching to CFrame fallback")
+                usingMethod = "cframe"
+                if BG then BG:Destroy(); BG = nil end
+            end
+
+        elseif usingMethod == "cframe" then
+            -- lerp-based movement (dt-scaled) -> ít giật hơn
+            if dir.Magnitude > 0 then
+                local move = dir.Unit * (FlySpeed * 10) * dt
+                local target = hrp.CFrame + move
+                hrp.CFrame = hrp.CFrame:Lerp(target, 0.9)
+            end
+            -- still not perfect if server forces HRP, but often works locally for testing
+        end
     end)
 end
 
