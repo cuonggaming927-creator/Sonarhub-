@@ -41,7 +41,6 @@ local MaxJump = 150
 local NoClip = false
 local Fly = false
 local FlySpeed = 2
-local FlyConnection
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -105,19 +104,30 @@ local function SetFly(state)
     if not hrp or not Humanoid then return end
 
     -- TẮT
-    if not state then
-        if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
-        if Force then Force:Destroy() Force = nil end
-        if Att then Att:Destroy() Att = nil end
+    -- TẮT FLY (RESTORE STATE)
+if not state then
+    if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
+    if Force then Force:Destroy() Force = nil end
+    if Att then Att:Destroy() Att = nil end
 
-        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-        Humanoid.AutoRotate = true
-        return
-    end
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
 
-    -- BẬT
-    Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    Humanoid.AutoRotate = false
+    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+    Humanoid.AutoRotate = true
+    return
+end
+
+
+    -- BẬT FLY (FIX STATE)
+Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
+Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+
+Humanoid.AutoRotate = false
 
     Att = Instance.new("Attachment", hrp)
 
@@ -140,7 +150,7 @@ local function SetFly(state)
         if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= cam.CFrame.UpVector end
 
         if dir.Magnitude > 0 then
-            Force.Force = dir.Unit * (FlySpeed * 6000)
+            Force.Force = dir.Unit * (FlySpeed * 15000)
         else
             Force.Force = Vector3.zero
         end
