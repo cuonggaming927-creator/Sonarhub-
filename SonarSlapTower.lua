@@ -40,7 +40,10 @@ local MinJump = 30
 local MaxJump = 150
 local NoClip = false
 local Fly = false
-local FlySpeed = 2
+local FlySpeed = 60
+local FlyConnection
+local BodyVel
+
 
 -- APPLY SPEED
 local function ApplySpeed()
@@ -96,49 +99,27 @@ local function SetNoclip(state)
     end
 end
 -- FLY (FIXED)
-local FlyConnection
-local Force, Att
-
 local function SetFly(state)
     local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
     if not hrp or not Humanoid then return end
 
-    -- TẮT
-    -- TẮT FLY (RESTORE STATE)
-if not state then
-    if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
-    if Force then Force:Destroy() Force = nil end
-    if Att then Att:Destroy() Att = nil end
+    if not state then
+        Fly = false
+        if FlyConnection then FlyConnection:Disconnect() FlyConnection = nil end
+        if BodyVel then BodyVel:Destroy() BodyVel = nil end
+        return
+    end
 
-    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
-    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+    Fly = true
 
-    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-    Humanoid.AutoRotate = true
-    return
-end
-
-
-    -- BẬT FLY (FIX STATE)
-Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-
-Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
-Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
-Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
-
-Humanoid.AutoRotate = false
-
-    Att = Instance.new("Attachment", hrp)
-
-    Force = Instance.new("VectorForce")
-    Force.Attachment0 = Att
-    Force.RelativeTo = Enum.ActuatorRelativeTo.World
-    Force.ApplyAtCenterOfMass = true
-    Force.Force = Vector3.zero
-    Force.Parent = hrp
+    BodyVel = Instance.new("BodyVelocity")
+    BodyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    BodyVel.Velocity = Vector3.new(0, 2, 0) -- lực đỡ
+    BodyVel.Parent = hrp
 
     FlyConnection = RunService.RenderStepped:Connect(function()
+        if not Fly then return end
+
         local cam = workspace.CurrentCamera
         local dir = Vector3.zero
 
@@ -146,16 +127,17 @@ Humanoid.AutoRotate = false
         if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
         if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
         if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += cam.CFrame.UpVector end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= cam.CFrame.UpVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= Vector3.new(0,1,0) end
 
         if dir.Magnitude > 0 then
-            Force.Force = dir.Unit * (FlySpeed * 15000)
+            BodyVel.Velocity = dir.Unit * FlySpeed
         else
-            Force.Force = Vector3.zero
+            BodyVel.Velocity = Vector3.new(0, 2, 0)
         end
     end)
 end
+
 
 Player.CharacterAdded:Connect(function(char)
     Character = char
@@ -461,13 +443,16 @@ if Fly and NoClip then
     NoclipBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
 end
 
-SetFly(Fly)
+FlyBtn.MouseButton1Click:Connect(function()
+    Fly = not Fly
+    SetFly(Fly)
 
-    FlyBtn.Text = "Fly : "..(Fly and "ON" or "OFF")
+    FlyBtn.Text = "Fly : " .. (Fly and "ON" or "OFF")
     FlyBtn.BackgroundColor3 = Fly
         and Color3.fromRGB(90,50,160)
         or Color3.fromRGB(35,35,45)
 end)
+
 -- MINI BUTTON 🌙
 local Mini = Instance.new("TextButton", Gui)
 Mini.Size = UDim2.fromScale(0.085,0.14)
