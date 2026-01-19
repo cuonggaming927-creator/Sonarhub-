@@ -15,18 +15,14 @@ local function ResetHumanoid()
     if not Humanoid then return end
 
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
 
-    Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    task.wait()
-
-    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-    task.wait()
-
-    -- kick climbing engine
-    Humanoid:ChangeState(Enum.HumanoidStateType.Climbing)
+    Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     task.wait()
     Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 end
+
 
 -- SETTING
 local Speed = 16
@@ -71,7 +67,6 @@ local function SetCharacterCollision(state)
 
     for _, v in pairs(Character:GetDescendants()) do
         if v:IsA("BasePart") then
-            -- GIỮ CHÂN + HRP CÓ COLLIDE
             if v.Name == "HumanoidRootPart"
             or v.Name:lower():find("leg")
             or v.Name:lower():find("foot") then
