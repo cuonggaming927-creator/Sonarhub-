@@ -96,6 +96,7 @@ local function SetNoclip(state)
         ResetHumanoid()
     end
 end
+-- FLY
 local function SetFly(state)
     if FlyConnection then
         FlyConnection:Disconnect()
@@ -436,7 +437,15 @@ Instance.new("UICorner", FlyBtn).CornerRadius = UDim.new(0,10)
 
 FlyBtn.MouseButton1Click:Connect(function()
     Fly = not Fly
-    SetFly(Fly)
+
+if Fly and NoClip then
+    NoClip = false
+    SetNoclip(false)
+    NoclipBtn.Text = "Noclip : OFF"
+    NoclipBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
+end
+
+SetFly(Fly)
 
     FlyBtn.Text = "Fly : "..(Fly and "ON" or "OFF")
     FlyBtn.BackgroundColor3 = Fly
