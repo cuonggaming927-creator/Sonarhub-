@@ -97,6 +97,8 @@ local function SetNoclip(state)
     end
 end
 -- FLY
+local FlyBV, FlyBG
+
 local function SetFly(state)
     if FlyConnection then
         FlyConnection:Disconnect()
@@ -106,39 +108,41 @@ local function SetFly(state)
     local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
-    if state then
-        hrp.Anchored = true
-
-        FlyConnection = RunService.RenderStepped:Connect(function()
-            local cam = workspace.CurrentCamera
-            local moveDir = Vector3.zero
-
-            if UIS:IsKeyDown(Enum.KeyCode.W) then
-                moveDir += cam.CFrame.LookVector
-            end
-            if UIS:IsKeyDown(Enum.KeyCode.S) then
-                moveDir -= cam.CFrame.LookVector
-            end
-            if UIS:IsKeyDown(Enum.KeyCode.A) then
-                moveDir -= cam.CFrame.RightVector
-            end
-            if UIS:IsKeyDown(Enum.KeyCode.D) then
-                moveDir += cam.CFrame.RightVector
-            end
-            if UIS:IsKeyDown(Enum.KeyCode.Space) then
-                moveDir += cam.CFrame.UpVector
-            end
-            if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
-                moveDir -= cam.CFrame.UpVector
-            end
-
-            if moveDir.Magnitude > 0 then
-                hrp.CFrame += moveDir.Unit * FlySpeed
-            end
-        end)
-    else
-        hrp.Anchored = false
+    if not state then
+        if FlyBV then FlyBV:Destroy() FlyBV = nil end
+        if FlyBG then FlyBG:Destroy() FlyBG = nil end
+        return
     end
+
+    FlyBV = Instance.new("BodyVelocity")
+    FlyBV.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+    FlyBV.Velocity = Vector3.zero
+    FlyBV.Parent = hrp
+
+    FlyBG = Instance.new("BodyGyro")
+    FlyBG.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+    FlyBG.CFrame = workspace.CurrentCamera.CFrame
+    FlyBG.Parent = hrp
+
+    FlyConnection = RunService.RenderStepped:Connect(function()
+        local cam = workspace.CurrentCamera
+        local dir = Vector3.zero
+
+        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += cam.CFrame.UpVector end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= cam.CFrame.UpVector end
+
+        if dir.Magnitude > 0 then
+            FlyBV.Velocity = dir.Unit * (FlySpeed * 50)
+        else
+            FlyBV.Velocity = Vector3.zero
+        end
+
+        FlyBG.CFrame = cam.CFrame
+    end)
 end
 
 Player.CharacterAdded:Connect(function(char)
