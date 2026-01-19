@@ -69,12 +69,14 @@ local NoclipConnection
 local function SetCharacterCollision(state)
     if not Character then return end
 
-    for _, v in pairs(Character:GetChildren()) do
+    for _, v in pairs(Character:GetDescendants()) do
         if v:IsA("BasePart") then
-            -- GIỮ COLLISION CHO CHÂN ĐỂ ENGINE NHẬN ĐẤT
-            if v.Name ~= "HumanoidRootPart"
-            and not v.Name:lower():find("foot")
-            and not v.Name:lower():find("leg") then
+            -- GIỮ CHÂN + HRP CÓ COLLIDE
+            if v.Name == "HumanoidRootPart"
+            or v.Name:lower():find("leg")
+            or v.Name:lower():find("foot") then
+                v.CanCollide = true
+            else
                 v.CanCollide = not state
             end
         end
@@ -111,15 +113,14 @@ local function SetFly(state)
     end
 
     Fly = true
+    Humanoid.PlatformStand = false
 
     BodyVel = Instance.new("BodyVelocity")
     BodyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-    BodyVel.Velocity = Vector3.new(0, 2, 0) -- lực đỡ
+    BodyVel.Velocity = Vector3.zero
     BodyVel.Parent = hrp
 
     FlyConnection = RunService.RenderStepped:Connect(function()
-        if not Fly then return end
-
         local cam = workspace.CurrentCamera
         local dir = Vector3.zero
 
@@ -133,11 +134,10 @@ local function SetFly(state)
         if dir.Magnitude > 0 then
             BodyVel.Velocity = dir.Unit * FlySpeed
         else
-            BodyVel.Velocity = Vector3.new(0, 2, 0)
+            BodyVel.Velocity = Vector3.new(0,0,0)
         end
     end)
 end
-
 
 Player.CharacterAdded:Connect(function(char)
     Character = char
@@ -432,16 +432,6 @@ FlyBtn.TextSize = 14
 FlyBtn.TextColor3 = Color3.new(1,1,1)
 FlyBtn.BorderSizePixel = 0
 Instance.new("UICorner", FlyBtn).CornerRadius = UDim.new(0,10)
-
-FlyBtn.MouseButton1Click:Connect(function()
-    Fly = not Fly
-
-if Fly and NoClip then
-    NoClip = false
-    SetNoclip(false)
-    NoclipBtn.Text = "Noclip : OFF"
-    NoclipBtn.BackgroundColor3 = Color3.fromRGB(35,35,45)
-end
 
 FlyBtn.MouseButton1Click:Connect(function()
     Fly = not Fly
